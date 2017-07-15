@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MushroomHunter</string>
+
+    <string name="camera_error">Camera error</string>
+</resources>
