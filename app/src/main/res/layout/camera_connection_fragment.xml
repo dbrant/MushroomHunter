@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize">
 
     <com.dmitrybrant.mushroomhunter.AutoFitTextureView
         android:id="@+id/texture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"/>
+        android:layout_gravity="bottom"/>
 
     <TextView
         android:id="@+id/results"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:padding="8dp"
-        android:background="@android:color/black"
-        android:textSize="24sp"
-        android:textColor="@android:color/white"/>
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:background="@color/edibleBackground"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="30sp"
+        android:textColor="@android:color/white"
+        tools:text="Result"/>
 
     <com.dmitrybrant.mushroomhunter.OverlayView
         android:id="@+id/debug_overlay"

@@ -12,6 +12,7 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
 import android.os.Trace;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
@@ -65,14 +66,12 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     private static final String INPUT_NAME = "input";
     private static final String OUTPUT_NAME = "final_result";
 
-
+    private MinStreakResult streakResult = new MinStreakResult(3);
 
     private static final String MODEL_FILE = "file:///android_asset/mushrooms.pb"; //tensorflow_inception_graph.pb";
-
     private static final String LABEL_FILE = "file:///android_asset/output_labels.txt";  //imagenet_comp_graph_label_strings.txt";
 
     private static final boolean SAVE_PREVIEW_BITMAP = false;
-
     private static final boolean MAINTAIN_ASPECT = true;
 
     private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
@@ -239,17 +238,47 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     }
 
     private void displayResults(List<Classifier.Recognition> results) {
-        final StringBuilder sb = new StringBuilder();
-        for (Classifier.Recognition rec : results) {
-            sb.append(rec.getTitle());
-            sb.append(" (");
-            sb.append((int)(rec.getConfidence() * 100f));
-            sb.append("%)\n");
+        float confidenceThreshold = 0.75f;
+        if (results.size() > 0 && results.get(0).getConfidence() >= confidenceThreshold) {
+            streakResult.add(results.get(0));
+        } else {
+            streakResult.add(null);
         }
+
+        Classifier.Recognition result = streakResult.get();
+        final String resultStr = result == null ? ""
+                : (result.getTitle() + " (" + (int) (result.getConfidence() * 100f) + "%)");
+
+        /*
+        StringBuilder sb = new StringBuilder();
+        int maxResults = 1;
+        int numResults = 0;
+        for (Classifier.Recognition rec : results) {
+            if (rec.getConfidence() > confidenceThreshold) {
+                sb.append(rec.getTitle());
+                sb.append(" (");
+                sb.append((int) (rec.getConfidence() * 100f));
+                sb.append("%)");
+                numResults++;
+                if (numResults >= maxResults) {
+                    break;
+                } else {
+                    sb.append("\n");
+                }
+            }
+        }
+        final String resultStr = sb.toString();
+        */
+
         resultsView.post(new Runnable() {
             @Override
             public void run() {
-                resultsView.setText(sb.toString());
+                resultsView.setText(resultStr);
+                if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
+                    resultsView.setBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
+                } else {
+                    resultsView.setBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
+                }
             }
         });
     }
