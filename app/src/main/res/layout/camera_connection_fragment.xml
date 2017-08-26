@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:padding="8dp"
-        android:background="#a000"
+        android:background="@android:color/black"
         android:textSize="24sp"
         android:textColor="@android:color/white"/>
 

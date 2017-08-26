@@ -42,6 +42,7 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Size;
@@ -156,7 +157,7 @@ public class CameraConnectionFragment extends Fragment {
     private final CameraDevice.StateCallback stateCallback =
             new CameraDevice.StateCallback() {
                 @Override
-                public void onOpened(final CameraDevice cd) {
+                public void onOpened(@NonNull final CameraDevice cd) {
                     // This method is called when the camera is opened.  We start camera preview here.
                     cameraOpenCloseLock.release();
                     cameraDevice = cd;
@@ -164,14 +165,14 @@ public class CameraConnectionFragment extends Fragment {
                 }
 
                 @Override
-                public void onDisconnected(final CameraDevice cd) {
+                public void onDisconnected(@NonNull final CameraDevice cd) {
                     cameraOpenCloseLock.release();
                     cd.close();
                     cameraDevice = null;
                 }
 
                 @Override
-                public void onError(final CameraDevice cd, final int error) {
+                public void onError(@NonNull final CameraDevice cd, final int error) {
                     cameraOpenCloseLock.release();
                     cd.close();
                     cameraDevice = null;
@@ -274,8 +275,8 @@ public class CameraConnectionFragment extends Fragment {
 
         // Collect the supported resolutions that are at least as big as the preview Surface
         boolean exactSizeFound = false;
-        final List<Size> bigEnough = new ArrayList<Size>();
-        final List<Size> tooSmall = new ArrayList<Size>();
+        final List<Size> bigEnough = new ArrayList<>();
+        final List<Size> tooSmall = new ArrayList<>();
         for (final Size option : choices) {
             if (option.equals(desiredSize)) {
                 // Set the size but don't return yet so that remaining sizes will still be logged.
@@ -377,8 +378,7 @@ public class CameraConnectionFragment extends Fragment {
                 }
 
                 // For still image captures, we use the largest available size.
-                final Size largest =
-                        Collections.max(
+                final Size largest = Collections.max(
                                 Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)),
                                 new CompareSizesByArea());
 
@@ -486,17 +486,15 @@ public class CameraConnectionFragment extends Fragment {
     private final CameraCaptureSession.CaptureCallback captureCallback =
             new CameraCaptureSession.CaptureCallback() {
                 @Override
-                public void onCaptureProgressed(
-                        final CameraCaptureSession session,
-                        final CaptureRequest request,
-                        final CaptureResult partialResult) {
+                public void onCaptureProgressed(@NonNull final CameraCaptureSession session,
+                        @NonNull final CaptureRequest request,
+                        @NonNull final CaptureResult partialResult) {
                 }
 
                 @Override
-                public void onCaptureCompleted(
-                        final CameraCaptureSession session,
-                        final CaptureRequest request,
-                        final TotalCaptureResult result) {
+                public void onCaptureCompleted(@NonNull final CameraCaptureSession session,
+                        @NonNull final CaptureRequest request,
+                        @NonNull final TotalCaptureResult result) {
                 }
             };
 
@@ -521,20 +519,18 @@ public class CameraConnectionFragment extends Fragment {
             Log.i(TAG, "Opening camera preview: " + previewSize.getWidth() + "x" + previewSize.getHeight());
 
             // Create the reader for the preview frames.
-            previewReader =
-                    ImageReader.newInstance(
-                            previewSize.getWidth(), previewSize.getHeight(), ImageFormat.YUV_420_888, 2);
+            previewReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
+                    ImageFormat.YUV_420_888, 2);
 
             previewReader.setOnImageAvailableListener(imageListener, backgroundHandler);
             previewRequestBuilder.addTarget(previewReader.getSurface());
 
             // Here, we create a CameraCaptureSession for camera preview.
-            cameraDevice.createCaptureSession(
-                    Arrays.asList(surface, previewReader.getSurface()),
+            cameraDevice.createCaptureSession(Arrays.asList(surface, previewReader.getSurface()),
                     new CameraCaptureSession.StateCallback() {
 
                         @Override
-                        public void onConfigured(final CameraCaptureSession cameraCaptureSession) {
+                        public void onConfigured(@NonNull final CameraCaptureSession cameraCaptureSession) {
                             // The camera is already closed
                             if (null == cameraDevice) {
                                 return;
@@ -544,24 +540,22 @@ public class CameraConnectionFragment extends Fragment {
                             captureSession = cameraCaptureSession;
                             try {
                                 // Auto focus should be continuous for camera preview.
-                                previewRequestBuilder.set(
-                                        CaptureRequest.CONTROL_AF_MODE,
+                                previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
                                 // Flash is automatically enabled when necessary.
-                                previewRequestBuilder.set(
-                                        CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
+                                previewRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
+                                        CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
 
                                 // Finally, we start displaying the camera preview.
                                 previewRequest = previewRequestBuilder.build();
-                                captureSession.setRepeatingRequest(
-                                        previewRequest, captureCallback, backgroundHandler);
+                                captureSession.setRepeatingRequest(previewRequest, captureCallback, backgroundHandler);
                             } catch (final CameraAccessException e) {
                                 e.printStackTrace();
                             }
                         }
 
                         @Override
-                        public void onConfigureFailed(final CameraCaptureSession cameraCaptureSession) {
+                        public void onConfigureFailed(@NonNull final CameraCaptureSession cameraCaptureSession) {
                             showToast("Failed");
                         }
                     },
@@ -593,10 +587,8 @@ public class CameraConnectionFragment extends Fragment {
         if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
             bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
             matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
-            final float scale =
-                    Math.max(
-                            (float) viewHeight / previewSize.getHeight(),
-                            (float) viewWidth / previewSize.getWidth());
+            final float scale = Math.max((float) viewHeight / previewSize.getHeight(),
+                    (float) viewWidth / previewSize.getWidth());
             matrix.postScale(scale, scale, centerX, centerY);
             matrix.postRotate(90 * (rotation - 2), centerX, centerY);
         } else if (Surface.ROTATION_180 == rotation) {
@@ -612,8 +604,7 @@ public class CameraConnectionFragment extends Fragment {
         @Override
         public int compare(final Size lhs, final Size rhs) {
             // We cast here to ensure the multiplications won't overflow
-            return Long.signum(
-                    (long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight());
+            return Long.signum((long) lhs.getWidth() * lhs.getHeight() - (long) rhs.getWidth() * rhs.getHeight());
         }
     }
 

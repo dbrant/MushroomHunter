@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
 import android.view.KeyEvent;
@@ -76,7 +77,6 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
 
     @Override
     public synchronized void onPause() {
-
         if (!isFinishing()) {
             finish();
         }
@@ -100,8 +100,7 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
     }
 
     @Override
-    public void onRequestPermissionsResult(
-            final int requestCode, final String[] permissions, final int[] grantResults) {
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST: {
                 if (grantResults.length > 0
@@ -117,7 +116,8 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
 
     private boolean hasPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return checkSelfPermission(PERMISSION_CAMERA) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(PERMISSION_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            return checkSelfPermission(PERMISSION_CAMERA) == PackageManager.PERMISSION_GRANTED
+                    && checkSelfPermission(PERMISSION_STORAGE) == PackageManager.PERMISSION_GRANTED;
         } else {
             return true;
         }
@@ -133,22 +133,18 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
     }
 
     protected void setFragment() {
-        final Fragment fragment =
-                CameraConnectionFragment.newInstance(
-                        new CameraConnectionFragment.ConnectionCallback() {
-                            @Override
-                            public void onPreviewSizeChosen(final Size size, final int rotation) {
-                                CameraActivity.this.onPreviewSizeChosen(size, rotation);
-                            }
-                        },
-                        this,
-                        getLayoutId(),
-                        getDesiredPreviewFrameSize());
+        final Fragment fragment = CameraConnectionFragment.newInstance(
+                new CameraConnectionFragment.ConnectionCallback() {
+                    @Override
+                    public void onPreviewSizeChosen(final Size size, final int rotation) {
+                        CameraActivity.this.onPreviewSizeChosen(size, rotation);
+                    }
+                },
+                this,
+                getLayoutId(),
+                getDesiredPreviewFrameSize());
 
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, fragment)
-                .commit();
+        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 
     protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {

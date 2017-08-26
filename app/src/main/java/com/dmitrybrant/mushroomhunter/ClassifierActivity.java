@@ -12,6 +12,7 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
 import android.os.Trace;
+import android.util.Log;
 import android.util.Size;
 import android.view.Display;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     // --input_binary=true
 
     /*
+    // original Inception v1 model from sample
     private static final int INPUT_SIZE = 224;
     private static final int IMAGE_MEAN = 117;
     private static final float IMAGE_STD = 1;
@@ -114,16 +116,15 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         borderedText = new TextView(this);
         borderedText.setTypeface(Typeface.MONOSPACE);
 
-        classifier =
-                TensorFlowImageClassifier.create(
-                        getAssets(),
-                        MODEL_FILE,
-                        LABEL_FILE,
-                        INPUT_SIZE,
-                        IMAGE_MEAN,
-                        IMAGE_STD,
-                        INPUT_NAME,
-                        OUTPUT_NAME);
+        classifier = TensorFlowImageClassifier.create(
+                getAssets(),
+                MODEL_FILE,
+                LABEL_FILE,
+                INPUT_SIZE,
+                IMAGE_MEAN,
+                IMAGE_STD,
+                INPUT_NAME,
+                OUTPUT_NAME);
 
         resultsView = (TextView) findViewById(R.id.results);
         previewWidth = size.getWidth();
@@ -141,24 +142,22 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
         croppedBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Config.ARGB_8888);
 
-        frameToCropTransform =
-                ImageUtils.getTransformationMatrix(
-                        previewWidth, previewHeight,
-                        INPUT_SIZE, INPUT_SIZE,
-                        sensorOrientation, MAINTAIN_ASPECT);
+        frameToCropTransform = ImageUtils.getTransformationMatrix(
+                previewWidth, previewHeight,
+                INPUT_SIZE, INPUT_SIZE,
+                sensorOrientation, MAINTAIN_ASPECT);
 
         cropToFrameTransform = new Matrix();
         frameToCropTransform.invert(cropToFrameTransform);
 
         yuvBytes = new byte[3][];
 
-        addCallback(
-                new OverlayView.DrawCallback() {
-                    @Override
-                    public void drawCallback(final Canvas canvas) {
-                        renderDebug(canvas);
-                    }
-                });
+        addCallback(new OverlayView.DrawCallback() {
+            @Override
+            public void drawCallback(final Canvas canvas) {
+                renderDebug(canvas);
+            }
+        });
     }
 
     @Override
@@ -199,10 +198,10 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
             image.close();
         } catch (final Exception e) {
+            e.printStackTrace();
             if (image != null) {
                 image.close();
             }
-            //LOGGER.e(e, "Exception!");
             Trace.endSection();
             return;
         }
@@ -216,21 +215,20 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
             ImageUtils.saveBitmap(croppedBitmap);
         }
 
-        runInBackground(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final long startTime = SystemClock.uptimeMillis();
-                        final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
-                        lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
+        runInBackground(new Runnable() {
+            @Override
+            public void run() {
+                final long startTime = SystemClock.uptimeMillis();
+                final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
+                lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
-                        displayResults(results);
-                        cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
+                displayResults(results);
+                cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
 
-                        requestRender();
-                        computing = false;
-                    }
-                });
+                requestRender();
+                computing = false;
+            }
+        });
 
         Trace.endSection();
     }
