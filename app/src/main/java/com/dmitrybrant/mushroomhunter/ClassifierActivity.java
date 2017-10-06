@@ -273,6 +273,10 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         resultsView.post(new Runnable() {
             @Override
             public void run() {
+                if (resultStr.toLowerCase().contains("not")) {
+                    resultsView.setText("");
+                    return;
+                }
                 resultsView.setText(resultStr);
                 if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
                     resultsView.setBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
