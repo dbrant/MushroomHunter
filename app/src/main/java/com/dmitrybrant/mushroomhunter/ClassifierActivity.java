@@ -15,9 +15,11 @@ import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
@@ -105,6 +107,18 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
     private long lastProcessingTimeMs;
 
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.disclaimer_title)
+                .setMessage(R.string.disclaimer_body)
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, null)
+                .create()
+                .show();
+    }
     @Override
     protected int getLayoutId() {
         return R.layout.camera_connection_fragment;
@@ -253,27 +267,6 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         Classifier.Recognition result = streakResult.get();
         final String resultStr = result == null ? ""
                 : (result.getTitle() + " (" + (int) (result.getConfidence() * 100f) + "%)");
-
-        /*
-        StringBuilder sb = new StringBuilder();
-        int maxResults = 1;
-        int numResults = 0;
-        for (Classifier.Recognition rec : results) {
-            if (rec.getConfidence() > confidenceThreshold) {
-                sb.append(rec.getTitle());
-                sb.append(" (");
-                sb.append((int) (rec.getConfidence() * 100f));
-                sb.append("%)");
-                numResults++;
-                if (numResults >= maxResults) {
-                    break;
-                } else {
-                    sb.append("\n");
-                }
-            }
-        }
-        final String resultStr = sb.toString();
-        */
 
         resultsView.post(new Runnable() {
             @Override

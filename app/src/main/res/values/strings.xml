@@ -2,4 +2,7 @@
     <string name="app_name">MushroomHuntr</string>
 
     <string name="camera_error">Camera error</string>
+
+    <string name="disclaimer_title">Warning</string>
+    <string name="disclaimer_body">This app is for educational purposes only. Do not rely on it for actual identification of edible or poisonous mushrooms!</string>
 </resources>

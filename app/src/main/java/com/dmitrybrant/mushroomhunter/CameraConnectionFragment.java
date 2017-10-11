@@ -358,19 +358,19 @@ public class CameraConnectionFragment extends Fragment {
     }
 
     private void setUpCameraOutputs() {
-        final Activity activity = getActivity();
-        final CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+        Activity activity = getActivity();
+        CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             for (final String cameraId : manager.getCameraIdList()) {
-                final CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
 
                 // We don't use a front facing camera in this sample.
-                final Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
+                Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
                 if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
                     continue;
                 }
 
-                final StreamConfigurationMap map =
+                StreamConfigurationMap map =
                         characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
                 if (map == null) {
@@ -391,14 +391,14 @@ public class CameraConnectionFragment extends Fragment {
                         inputSize.getWidth(), inputSize.getHeight());
 
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
-                final int orientation = getResources().getConfiguration().orientation;
+                int orientation = getResources().getConfiguration().orientation;
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
                 } else {
                     textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
                 }
 
-                CameraConnectionFragment.this.cameraId = cameraId;
+                this.cameraId = cameraId;
             }
         } catch (final CameraAccessException e) {
             e.printStackTrace();
