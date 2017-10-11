@@ -326,7 +326,7 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onViewCreated(final View view, final Bundle savedInstanceState) {
-        textureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        textureView = view.findViewById(R.id.texture);
     }
 
     @Override
@@ -600,7 +600,7 @@ public class CameraConnectionFragment extends Fragment {
     /**
      * Compares two {@code Size}s based on their areas.
      */
-    static class CompareSizesByArea implements Comparator<Size> {
+    private static class CompareSizesByArea implements Comparator<Size> {
         @Override
         public int compare(final Size lhs, final Size rhs) {
             // We cast here to ensure the multiplications won't overflow

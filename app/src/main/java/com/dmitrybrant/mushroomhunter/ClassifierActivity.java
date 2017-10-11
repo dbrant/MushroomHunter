@@ -1,3 +1,8 @@
+/*
+ * Copyright 2017 Dmitry Brant
+ *
+ * Adapted from sample classifier app from the TensorFlow repo.
+ */
 package com.dmitrybrant.mushroomhunter;
 
 import android.graphics.Bitmap;
@@ -68,8 +73,8 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
     private MinStreakResult streakResult = new MinStreakResult(3);
 
-    private static final String MODEL_FILE = "file:///android_asset/mushrooms.pb"; //tensorflow_inception_graph.pb";
-    private static final String LABEL_FILE = "file:///android_asset/output_labels.txt";  //imagenet_comp_graph_label_strings.txt";
+    private static final String MODEL_FILE = "file:///android_asset/mushrooms.pb";
+    private static final String LABEL_FILE = "file:///android_asset/output_labels.txt";
 
     private static final boolean SAVE_PREVIEW_BITMAP = false;
     private static final boolean MAINTAIN_ASPECT = true;
@@ -125,7 +130,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                 INPUT_NAME,
                 OUTPUT_NAME);
 
-        resultsView = (TextView) findViewById(R.id.results);
+        resultsView = findViewById(R.id.results);
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
 
