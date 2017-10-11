@@ -62,11 +62,6 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
     }
 
     @Override
-    public synchronized void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public synchronized void onResume() {
         super.onResume();
 
@@ -77,10 +72,6 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
 
     @Override
     public synchronized void onPause() {
-        if (!isFinishing()) {
-            finish();
-        }
-
         handlerThread.quitSafely();
         try {
             handlerThread.join();
@@ -89,7 +80,6 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
         } catch (final InterruptedException e) {
             Log.w(TAG, "Exception!");
         }
-
         super.onPause();
     }
 
@@ -165,14 +155,14 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
     }
 
     public void requestRender() {
-        final OverlayView overlay = (OverlayView) findViewById(R.id.debug_overlay);
+        final OverlayView overlay = findViewById(R.id.debug_overlay);
         if (overlay != null) {
             overlay.postInvalidate();
         }
     }
 
     public void addCallback(final OverlayView.DrawCallback callback) {
-        final OverlayView overlay = (OverlayView) findViewById(R.id.debug_overlay);
+        final OverlayView overlay = findViewById(R.id.debug_overlay);
         if (overlay != null) {
             overlay.addCallback(callback);
         }
