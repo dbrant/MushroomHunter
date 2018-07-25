@@ -20,12 +20,11 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.util.Size;
 import android.view.Display;
 import android.widget.TextView;
 
-import org.tensorflow.demo.env.ImageUtils;
+import com.dmitrybrant.mushroomhunter.util.ImageUtils;
 
 import java.util.List;
 
