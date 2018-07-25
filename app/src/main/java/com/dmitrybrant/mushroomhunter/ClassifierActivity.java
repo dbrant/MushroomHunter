@@ -20,6 +20,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Size;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.dmitrybrant.mushroomhunter.util.ImageUtils;
@@ -109,9 +111,31 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                 .create()
                 .show();
     }
+
     @Override
     protected int getLayoutId() {
         return R.layout.camera_connection_fragment;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_about:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.about_message)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

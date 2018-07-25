@@ -17,8 +17,6 @@
 package com.dmitrybrant.mushroomhunter;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.media.Image.Plane;
 import android.media.ImageReader.OnImageAvailableListener;
@@ -27,6 +25,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
 import android.view.WindowManager;
@@ -34,7 +34,7 @@ import android.widget.Toast;
 
 import java.nio.ByteBuffer;
 
-public abstract class CameraActivity extends Activity implements OnImageAvailableListener {
+public abstract class CameraActivity extends AppCompatActivity implements OnImageAvailableListener {
     private static final String TAG = "CameraActivity";
     private static final int PERMISSIONS_REQUEST = 1;
 
@@ -125,7 +125,7 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
                 getLayoutId(),
                 getDesiredPreviewFrameSize());
 
-        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }
 
     protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {

@@ -8,13 +8,4 @@
     android:background="#333"
     tools:context=".CameraActivity" >
 
-    <Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:title="@string/app_name"
-        android:background="@color/colorPrimary"
-        android:titleTextColor="@android:color/white"
-        android:elevation="4dp">
-    </Toolbar>
-
 </FrameLayout>
