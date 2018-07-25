@@ -14,7 +14,6 @@ import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.os.Trace;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -79,11 +78,9 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     private static final boolean SAVE_PREVIEW_BITMAP = false;
     private static final boolean MAINTAIN_ASPECT = true;
 
-    private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+    private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 320);
 
     private Classifier classifier;
-
-    private Integer sensorOrientation;
 
     private int previewWidth = 0;
     private int previewHeight = 0;
@@ -145,7 +142,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
         //LOGGER.i("Sensor orientation: %d, Screen orientation: %d", rotation, screenOrientation);
 
-        sensorOrientation = rotation + screenOrientation;
+        int sensorOrientation = rotation + screenOrientation;
 
         //LOGGER.i("Initializing at size %dx%d", previewWidth, previewHeight);
         rgbBytes = new int[previewWidth * previewHeight];
@@ -218,23 +215,14 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
             ImageUtils.saveBitmap(croppedBitmap);
         }
 
-        runInBackground(new Runnable() {
-            @Override
-            public void run() {
-                final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
-
-                displayResults(results);
-                requestRender();
-                computing = false;
-            }
+        runInBackground(() -> {
+            final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
+            displayResults(results);
+            requestRender();
+            computing = false;
         });
 
         Trace.endSection();
-    }
-
-    @Override
-    public void onSetDebug(boolean debug) {
-        classifier.enableStatLogging(debug);
     }
 
     private void displayResults(List<Classifier.Recognition> results) {
@@ -249,19 +237,16 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         final String resultStr = result == null ? ""
                 : (result.getTitle() + " (" + (int) (result.getConfidence() * 100f) + "%)");
 
-        resultsView.post(new Runnable() {
-            @Override
-            public void run() {
-                if (resultStr.toLowerCase().contains("not")) {
-                    resultsView.setText("");
-                    return;
-                }
-                resultsView.setText(resultStr);
-                if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
-                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
-                } else {
-                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
-                }
+        resultsView.post(() -> {
+            if (resultStr.toLowerCase().contains("not")) {
+                resultsView.setText("");
+                return;
+            }
+            resultsView.setText(resultStr);
+            if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
+                resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
+            } else {
+                resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
             }
         });
     }

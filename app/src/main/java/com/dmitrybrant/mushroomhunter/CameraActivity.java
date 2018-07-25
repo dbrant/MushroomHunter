@@ -29,7 +29,6 @@ import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
-import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -41,8 +40,6 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
 
     private static final String PERMISSION_CAMERA = Manifest.permission.CAMERA;
     private static final String PERMISSION_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
-    private boolean debug = false;
 
     private Handler handler;
     private HandlerThread handlerThread;
@@ -64,7 +61,6 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
     @Override
     public synchronized void onResume() {
         super.onResume();
-
         handlerThread = new HandlerThread("inference");
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
@@ -124,12 +120,7 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
 
     protected void setFragment() {
         final Fragment fragment = CameraConnectionFragment.newInstance(
-                new CameraConnectionFragment.ConnectionCallback() {
-                    @Override
-                    public void onPreviewSizeChosen(final Size size, final int rotation) {
-                        CameraActivity.this.onPreviewSizeChosen(size, rotation);
-                    }
-                },
+                CameraActivity.this::onPreviewSizeChosen,
                 this,
                 getLayoutId(),
                 getDesiredPreviewFrameSize());
@@ -150,36 +141,11 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
         }
     }
 
-    public boolean isDebug() {
-        return debug;
-    }
-
     public void requestRender() {
         final OverlayView overlay = findViewById(R.id.debug_overlay);
         if (overlay != null) {
             overlay.postInvalidate();
         }
-    }
-
-    public void addCallback(final OverlayView.DrawCallback callback) {
-        final OverlayView overlay = findViewById(R.id.debug_overlay);
-        if (overlay != null) {
-            overlay.addCallback(callback);
-        }
-    }
-
-    public void onSetDebug(final boolean debug) {
-    }
-
-    @Override
-    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            debug = !debug;
-            requestRender();
-            onSetDebug(debug);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     protected abstract void onPreviewSizeChosen(final Size size, final int rotation);
