@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Dmitry Brant
+ * Copyright 2018 Dmitry Brant
  *
  * Adapted from sample classifier app from the TensorFlow repo.
  */
@@ -9,8 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
@@ -20,6 +18,7 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.util.Size;
 import android.view.Display;
 import android.widget.TextView;
@@ -93,18 +92,13 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     private Bitmap rgbFrameBitmap = null;
     private Bitmap croppedBitmap = null;
 
-    private Bitmap cropCopyBitmap;
-
     private boolean computing = false;
 
     private Matrix frameToCropTransform;
     private Matrix cropToFrameTransform;
 
+    private CardView resultsCard;
     private TextView resultsView;
-
-    private TextView borderedText;
-
-    private long lastProcessingTimeMs;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -130,8 +124,6 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
     @Override
     public void onPreviewSizeChosen(final Size size, final int rotation) {
-        borderedText = new TextView(this);
-        borderedText.setTypeface(Typeface.MONOSPACE);
 
         classifier = TensorFlowImageClassifier.create(
                 getAssets(),
@@ -143,7 +135,8 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                 INPUT_NAME,
                 OUTPUT_NAME);
 
-        resultsView = findViewById(R.id.results);
+        resultsCard = findViewById(R.id.result_card);
+        resultsView = findViewById(R.id.result_text);
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
 
@@ -168,13 +161,6 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         frameToCropTransform.invert(cropToFrameTransform);
 
         yuvBytes = new byte[3][];
-
-        addCallback(new OverlayView.DrawCallback() {
-            @Override
-            public void drawCallback(final Canvas canvas) {
-                renderDebug(canvas);
-            }
-        });
     }
 
     @Override
@@ -235,13 +221,9 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         runInBackground(new Runnable() {
             @Override
             public void run() {
-                final long startTime = SystemClock.uptimeMillis();
                 final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
-                lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 
                 displayResults(results);
-                cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
-
                 requestRender();
                 computing = false;
             }
@@ -276,45 +258,12 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                 }
                 resultsView.setText(resultStr);
                 if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
-                    resultsView.setBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
+                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
                 } else {
-                    resultsView.setBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
+                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
                 }
             }
         });
     }
 
-    private void renderDebug(final Canvas canvas) {
-        if (!isDebug()) {
-            return;
-        }
-        final Bitmap copy = cropCopyBitmap;
-        if (copy != null) {
-            final Matrix matrix = new Matrix();
-            final float scaleFactor = 2;
-            matrix.postScale(scaleFactor, scaleFactor);
-            matrix.postTranslate(
-                    canvas.getWidth() - copy.getWidth() * scaleFactor,
-                    canvas.getHeight() - copy.getHeight() * scaleFactor);
-            canvas.drawBitmap(copy, matrix, new Paint());
-
-            StringBuilder lines = new StringBuilder();
-            if (classifier != null) {
-                String statString = classifier.getStatString();
-                String[] statLines = statString.split("\n");
-                for (String line : statLines) {
-                    lines.append(line);
-                    lines.append("\n");
-                }
-            }
-
-            lines.append("Frame: " + previewWidth + "x" + previewHeight);
-            lines.append("Crop: " + copy.getWidth() + "x" + copy.getHeight());
-            lines.append("View: " + canvas.getWidth() + "x" + canvas.getHeight());
-            lines.append("Rotation: " + sensorOrientation);
-            lines.append("Inference time: " + lastProcessingTimeMs + "ms");
-
-            borderedText.setText(lines);
-        }
-    }
 }

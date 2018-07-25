@@ -23,7 +23,6 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.RectF;
@@ -126,9 +125,9 @@ public class CameraConnectionFragment extends Fragment {
     private String cameraId;
 
     /**
-     * An {@link AutoFitTextureView} for camera preview.
+     * An {@link TextureView} for camera preview.
      */
-    private AutoFitTextureView textureView;
+    private TextureView textureView;
 
     /**
      * A {@link CameraCaptureSession } for camera preview.
@@ -358,8 +357,7 @@ public class CameraConnectionFragment extends Fragment {
     }
 
     private void setUpCameraOutputs() {
-        Activity activity = getActivity();
-        CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+        CameraManager manager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
         try {
             for (final String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
@@ -392,11 +390,14 @@ public class CameraConnectionFragment extends Fragment {
 
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
                 int orientation = getResources().getConfiguration().orientation;
+
+                /*
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
                 } else {
                     textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
                 }
+                */
 
                 this.cameraId = cameraId;
             }
