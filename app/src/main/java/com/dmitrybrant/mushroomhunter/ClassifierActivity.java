@@ -5,6 +5,8 @@
  */
 package com.dmitrybrant.mushroomhunter;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -22,6 +24,7 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.dmitrybrant.mushroomhunter.util.ImageUtils;
@@ -258,20 +261,56 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         }
 
         Classifier.Recognition result = streakResult.get();
+        if (result != null && result.getTitle().toLowerCase().contains("not")) {
+            result = null;
+        }
+
+        final boolean resultExists = result != null;
         final String resultStr = result == null ? ""
                 : (result.getTitle() + " (" + (int) (result.getConfidence() * 100f) + "%)");
 
         resultsView.post(() -> {
-            if (resultStr.toLowerCase().contains("not")) {
-                resultsView.setText("");
-                return;
-            }
-            resultsView.setText(resultStr);
-            if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
-                resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
+
+            if (resultExists) {
+                resultsView.setText(resultStr);
+                if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
+                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
+                } else {
+                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
+                }
+
+                // fade in
+                if (resultsCard.getVisibility() == View.GONE){
+                    resultsCard.setAlpha(0f);
+                    resultsCard.setScaleX(0.5f);
+                    resultsCard.setScaleY(0.5f);
+                    resultsCard.setVisibility(View.VISIBLE);
+                    resultsCard.animate()
+                            .alpha(1f)
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(500)
+                            .setListener(null);
+                }
+
             } else {
-                resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
+                // fade out
+                if (resultsCard.getVisibility() == View.VISIBLE){
+                    resultsCard.animate()
+                            .alpha(0f)
+                            .scaleX(0.5f)
+                            .scaleY(0.5f)
+                            .setDuration(500)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    resultsCard.setVisibility(View.GONE);
+                                }
+                            });
+                }
             }
+
+
         });
     }
 
