@@ -68,13 +68,15 @@ public abstract class CameraActivity extends AppCompatActivity implements OnImag
 
     @Override
     public synchronized void onPause() {
-        handlerThread.quitSafely();
-        try {
-            handlerThread.join();
-            handlerThread = null;
-            handler = null;
-        } catch (final InterruptedException e) {
-            Log.w(TAG, "Exception!");
+        if (handlerThread != null) {
+            handlerThread.quitSafely();
+            try {
+                handlerThread.join();
+                handlerThread = null;
+                handler = null;
+            } catch (final InterruptedException e) {
+                Log.w(TAG, "Exception!");
+            }
         }
         super.onPause();
     }

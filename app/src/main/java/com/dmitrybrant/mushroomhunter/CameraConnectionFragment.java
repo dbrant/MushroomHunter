@@ -302,22 +302,18 @@ public class CameraConnectionFragment extends Fragment {
         }
     }
 
-    public static CameraConnectionFragment newInstance(
-            final ConnectionCallback callback,
-            final OnImageAvailableListener imageListener,
-            final int layout,
-            final Size inputSize) {
+    public static CameraConnectionFragment newInstance(final ConnectionCallback callback, final OnImageAvailableListener imageListener,
+                                                       final int layout, final Size inputSize) {
         return new CameraConnectionFragment(callback, imageListener, layout, inputSize);
     }
 
     @Override
-    public View onCreateView(
-            final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
         return inflater.inflate(layout, container, false);
     }
 
     @Override
-    public void onViewCreated(final View view, final Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         textureView = view.findViewById(R.id.texture);
     }
 
@@ -344,13 +340,19 @@ public class CameraConnectionFragment extends Fragment {
 
     @Override
     public void onPause() {
+        textureView.setSurfaceTextureListener(null);
         closeCamera();
         stopBackgroundThread();
         super.onPause();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     private void setUpCameraOutputs() {
-        CameraManager manager = (CameraManager) getActivity().getSystemService(Context.CAMERA_SERVICE);
+        CameraManager manager = (CameraManager) requireActivity().getSystemService(Context.CAMERA_SERVICE);
         try {
             for (final String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
@@ -415,8 +417,7 @@ public class CameraConnectionFragment extends Fragment {
     private void openCamera(final int width, final int height) {
         setUpCameraOutputs();
         configureTransform(width, height);
-        final Activity activity = getActivity();
-        final CameraManager manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
+        final CameraManager manager = (CameraManager) requireActivity().getSystemService(Context.CAMERA_SERVICE);
         try {
             if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("Timeout waiting to lock camera opening.");
@@ -436,6 +437,7 @@ public class CameraConnectionFragment extends Fragment {
         try {
             cameraOpenCloseLock.acquire();
             if (null != captureSession) {
+                captureSession.stopRepeating();
                 captureSession.close();
                 captureSession = null;
             }
@@ -444,10 +446,11 @@ public class CameraConnectionFragment extends Fragment {
                 cameraDevice = null;
             }
             if (null != previewReader) {
+                previewReader.setOnImageAvailableListener(null, null);
                 previewReader.close();
                 previewReader = null;
             }
-        } catch (final InterruptedException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
         } finally {
             cameraOpenCloseLock.release();
@@ -467,13 +470,15 @@ public class CameraConnectionFragment extends Fragment {
      * Stops the background thread and its {@link Handler}.
      */
     private void stopBackgroundThread() {
-        backgroundThread.quitSafely();
-        try {
-            backgroundThread.join();
-            backgroundThread = null;
-            backgroundHandler = null;
-        } catch (final InterruptedException e) {
-            e.printStackTrace();
+        if (backgroundThread != null) {
+            backgroundThread.quitSafely();
+            try {
+                backgroundThread.quit();
+                backgroundThread = null;
+                backgroundHandler = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -616,14 +621,14 @@ public class CameraConnectionFragment extends Fragment {
             return dialog;
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(final Bundle savedInstanceState) {
-            final Activity activity = getActivity();
-            return new AlertDialog.Builder(activity)
+            return new AlertDialog.Builder(requireActivity())
                     .setMessage(getArguments().getString(ARG_MESSAGE))
                     .setPositiveButton(
                             android.R.string.ok,
-                            (dialogInterface, i) -> activity.finish())
+                            (dialogInterface, i) -> requireActivity().finish())
                     .create();
         }
     }

@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Vector;
@@ -59,7 +58,6 @@ public class TensorFlowImageClassifier implements Classifier {
      * @param imageStd      The assumed std of the image values.
      * @param inputName     The label of the image input node.
      * @param outputName    The label of the output node.
-     * @throws IOException
      */
     public static Classifier create(
             AssetManager assetManager,
