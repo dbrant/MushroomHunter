@@ -17,7 +17,7 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.Trace;
-import android.support.v4.content.ContextCompat;
+import android.support.annotation.DrawableRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Size;
@@ -25,8 +25,10 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.dmitrybrant.mushroomhunter.util.ImageUtils;
 
 import java.util.List;
@@ -100,7 +102,10 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     private Matrix cropToFrameTransform;
 
     private CardView resultsCard;
-    private TextView resultsView;
+    private TextView resultsTitleView;
+    private TextView resultsBinomialView;
+    private TextView resultsConfidenceView;
+    private ImageView resultsImage;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -160,7 +165,10 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
                 OUTPUT_NAME);
 
         resultsCard = findViewById(R.id.result_card);
-        resultsView = findViewById(R.id.result_text);
+        resultsTitleView = findViewById(R.id.result_title_text);
+        resultsBinomialView = findViewById(R.id.result_binomial_text);
+        resultsConfidenceView = findViewById(R.id.result_confidence_text);
+        resultsImage = findViewById(R.id.result_preview_image);
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
 
@@ -245,7 +253,6 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         runInBackground(() -> {
             final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
             displayResults(results);
-            requestRender();
             computing = false;
         });
 
@@ -260,23 +267,31 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
             streakResult.add(null);
         }
 
-        Classifier.Recognition result = streakResult.get();
-        if (result != null && result.getTitle().toLowerCase().contains("not")) {
-            result = null;
-        }
+        final Classifier.Recognition result = streakResult.get();
 
-        final boolean resultExists = result != null;
-        final String resultStr = result == null ? ""
-                : (result.getTitle() + " (" + (int) (result.getConfidence() * 100f) + "%)");
+        resultsTitleView.post(() -> {
 
-        resultsView.post(() -> {
+            boolean resultExists = result != null;
+            if (result != null && result.getTitle().toLowerCase().contains("not")) {
+                resultExists = false;
+            }
 
             if (resultExists) {
-                resultsView.setText(resultStr);
-                if (resultStr.toLowerCase().contains("fly") || resultStr.toLowerCase().contains("destroy")) {
-                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
+
+                String resultLower = result.getTitle().toLowerCase();
+
+                resultsTitleView.setText(getCommonNameForBinomial(resultLower));
+                resultsBinomialView.setText(result.getTitle());
+                resultsConfidenceView.setText(Integer.toString((int) (result.getConfidence() * 100f)) + "%");
+
+                Glide.with(this)
+                        .load(getDrawableForCategoryName(resultLower))
+                        .into(resultsImage);
+
+                if (resultLower.contains("fly") || resultLower.contains("destroy")) {
+                    //resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.poisonousBackground));
                 } else {
-                    resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
+                    //resultsCard.setCardBackgroundColor(ContextCompat.getColor(ClassifierActivity.this, R.color.edibleBackground));
                 }
 
                 // fade in
@@ -314,4 +329,51 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         });
     }
 
+
+    @DrawableRes
+    private int getDrawableForCategoryName(String name) {
+        if (name.contains("morchella")) {
+            return R.drawable.morchella_esculenta;
+        } else if (name.contains("muscaria")) {
+            return R.drawable.amanita_muscaria;
+        } else if (name.contains("virosa")) {
+            return R.drawable.amanita_virosa;
+        } else if (name.contains("grifola")) {
+            return R.drawable.grifola_frondosa;
+        } else if (name.contains("edulis")) {
+            return R.drawable.boletus_edulis;
+        } else if (name.contains("coprinus")) {
+            return R.drawable.coprinus_comatus;
+        } else if (name.contains("cantharellus")) {
+            return R.drawable.cantharellus_cibarius;
+        } else if (name.contains("armillaria")) {
+            return R.drawable.armillaria_mellea;
+        } else if (name.contains("agaricus")) {
+            return R.drawable.agaricus_bisporus;
+        }
+        return 0;
+    }
+
+    private String getCommonNameForBinomial(String name) {
+        if (name.contains("morchella")) {
+            return "Morel";
+        } else if (name.contains("muscaria")) {
+            return "Fly agaric";
+        } else if (name.contains("grifola")) {
+            return "Hen of the woods";
+        } else if (name.contains("virosa")) {
+            return "Destroying angel";
+        } else if (name.contains("agaricus")) {
+            return "Button mushroom";
+        } else if (name.contains("cantharellus")) {
+            return "Chanterelle";
+        } else if (name.contains("coprinus")) {
+            return "Shaggy mane";
+        } else if (name.contains("edulis")) {
+            return "Porcino";
+        } else if (name.contains("armillaria")) {
+            return "Honey mushroom";
+        }
+        return "";
+    }
 }

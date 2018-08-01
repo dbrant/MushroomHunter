@@ -143,13 +143,6 @@ public abstract class CameraActivity extends AppCompatActivity implements OnImag
         }
     }
 
-    public void requestRender() {
-        final OverlayView overlay = findViewById(R.id.debug_overlay);
-        if (overlay != null) {
-            overlay.postInvalidate();
-        }
-    }
-
     protected abstract void onPreviewSizeChosen(final Size size, final int rotation);
 
     protected abstract int getLayoutId();

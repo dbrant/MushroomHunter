@@ -1,10 +1,10 @@
-Chanterelle
+Cantharellus cibarius
 Not mushroom
-Shaggy Mane
-Porcino
-Agaricus
-Fly agaric
-Destroying Angel
-Honey Mushroom
-Morel
-Hen of the Woods
+Coprinus comatus
+Boletus edulis
+Agaricus bisporus
+Amanita muscaria
+Amanita virosa
+Armillaria mellea
+Morchella esculenta
+Grifola frondosa
