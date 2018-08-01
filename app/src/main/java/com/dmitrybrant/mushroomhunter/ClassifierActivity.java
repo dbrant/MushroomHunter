@@ -7,6 +7,7 @@ package com.dmitrybrant.mushroomhunter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -15,9 +16,11 @@ import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Trace;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.Size;
@@ -101,6 +104,8 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     private Matrix frameToCropTransform;
     private Matrix cropToFrameTransform;
 
+    @Nullable private Classifier.Recognition currentResult;
+
     private CardView resultsCard;
     private TextView resultsTitleView;
     private TextView resultsBinomialView;
@@ -172,6 +177,18 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         previewWidth = size.getWidth();
         previewHeight = size.getHeight();
 
+
+
+        View tempView = findViewById(R.id.result_info_button);
+        tempView.setOnClickListener(v -> {
+            if (currentResult != null) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://en.m.wikipedia.org/wiki/" + currentResult.getTitle()));
+                startActivity(browserIntent);
+            }
+        });
+
+
+
         final Display display = getWindowManager().getDefaultDisplay();
         final int screenOrientation = display.getRotation();
 
@@ -198,20 +215,15 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     @Override
     public void onImageAvailable(final ImageReader reader) {
         Image image = null;
-
         try {
             image = reader.acquireLatestImage();
-
             if (image == null) {
                 return;
             }
-
             if (computing) {
                 image.close();
                 return;
             }
-            computing = true;
-
             Trace.beginSection("imageAvailable");
 
             final Plane[] planes = image.getPlanes();
@@ -251,9 +263,13 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
         }
 
         runInBackground(() -> {
-            final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
-            displayResults(results);
-            computing = false;
+            computing = true;
+            try {
+                final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
+                displayResults(results);
+            } finally {
+                computing = false;
+            }
         });
 
         Trace.endSection();
@@ -267,22 +283,22 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
             streakResult.add(null);
         }
 
-        final Classifier.Recognition result = streakResult.get();
+        currentResult = streakResult.get();
 
         resultsTitleView.post(() -> {
 
-            boolean resultExists = result != null;
-            if (result != null && result.getTitle().toLowerCase().contains("not")) {
+            boolean resultExists = currentResult != null;
+            if (currentResult != null && currentResult.getTitle().toLowerCase().contains("not")) {
                 resultExists = false;
             }
 
             if (resultExists) {
 
-                String resultLower = result.getTitle().toLowerCase();
+                String resultLower = currentResult.getTitle().toLowerCase();
 
                 resultsTitleView.setText(getCommonNameForBinomial(resultLower));
-                resultsBinomialView.setText(result.getTitle());
-                resultsConfidenceView.setText(Integer.toString((int) (result.getConfidence() * 100f)) + "%");
+                resultsBinomialView.setText(currentResult.getTitle());
+                resultsConfidenceView.setText(Integer.toString((int) (currentResult.getConfidence() * 100f)) + "%");
 
                 Glide.with(this)
                         .load(getDrawableForCategoryName(resultLower))
