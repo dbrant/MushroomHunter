@@ -1,6 +1,6 @@
 package com.dmitrybrant.mushroomhunter;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class MinStreakResult {
 
