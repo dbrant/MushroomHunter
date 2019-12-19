@@ -298,7 +298,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
                 resultsTitleView.setText(getCommonNameForBinomial(resultLower));
                 resultsBinomialView.setText(currentResult.getTitle());
-                resultsConfidenceView.setText(Integer.toString((int) (currentResult.getConfidence() * 100f)) + "%");
+                resultsConfidenceView.setText(((int) (currentResult.getConfidence() * 100f)) + "%");
 
                 Glide.with(this)
                         .load(getDrawableForCategoryName(resultLower))
