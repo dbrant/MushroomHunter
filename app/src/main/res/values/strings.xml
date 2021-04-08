@@ -4,7 +4,7 @@
     <string name="camera_error">Camera error</string>
 
     <string name="about">About…</string>
-    <string name="about_message">Copyright © 2018–2020 Dmitry Brant.</string>
+    <string name="about_message">Copyright © 2018–2021 Dmitry Brant.</string>
     <string name="disclaimer_title">Warning</string>
     <string name="disclaimer_body">This app is for educational purposes only. Do not rely on it for actual identification of edible or poisonous mushrooms!</string>
 </resources>
