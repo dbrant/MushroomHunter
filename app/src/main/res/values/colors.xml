@@ -7,6 +7,6 @@
     <color name="edibleBackground">#e0f0e0</color>
     <color name="poisonousBackground">#f0e0e0</color>
 
-    <color name="uiElement">#70707f</color>
+    <color name="uiElement">#f0f0ff</color>
 
 </resources>
