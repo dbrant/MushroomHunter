@@ -40,7 +40,6 @@ import android.os.HandlerThread;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Size;
@@ -51,6 +50,8 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -624,11 +625,9 @@ public class CameraConnectionFragment extends Fragment {
         @NonNull
         @Override
         public Dialog onCreateDialog(final Bundle savedInstanceState) {
-            return new AlertDialog.Builder(requireActivity())
-                    .setMessage(getArguments().getString(ARG_MESSAGE))
-                    .setPositiveButton(
-                            android.R.string.ok,
-                            (dialogInterface, i) -> requireActivity().finish())
+            return new MaterialAlertDialogBuilder(requireActivity())
+                    .setMessage(requireArguments().getString(ARG_MESSAGE))
+                    .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> requireActivity().finish())
                     .create();
         }
     }

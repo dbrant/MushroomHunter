@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitry Brant
+ * Copyright 2018- Dmitry Brant
  *
  * Adapted from sample classifier app from the TensorFlow repo.
  */
@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.os.Trace;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import android.util.Size;
 import android.view.Display;
@@ -33,6 +32,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.dmitrybrant.mushroomhunter.util.ImageUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -116,12 +116,11 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.disclaimer_title)
                 .setMessage(R.string.disclaimer_body)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, null)
-                .create()
                 .show();
     }
 
@@ -140,7 +139,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_about:
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.app_name)
                         .setMessage(R.string.about_message)
                         .setPositiveButton(android.R.string.ok, null)
