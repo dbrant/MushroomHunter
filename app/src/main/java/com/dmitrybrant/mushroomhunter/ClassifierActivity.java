@@ -137,17 +137,15 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_about:
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(R.string.app_name)
-                        .setMessage(R.string.about_message)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.menu_about) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(R.string.about_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
