@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
+    compileSdk 34
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -10,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId "com.dmitrybrant.mushroomhunter"
-        minSdkVersion 21
-        targetSdkVersion 33
+        minSdk 21
+        targetSdk 34
         versionCode 3
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -33,7 +33,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'org.tensorflow:tensorflow-android:1.13.1'
-    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
 
     implementation "com.google.android.material:material:1.9.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
