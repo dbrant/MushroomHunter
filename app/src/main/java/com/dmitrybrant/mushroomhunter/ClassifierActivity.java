@@ -82,7 +82,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
     private MinStreakResult streakResult = new MinStreakResult(3);
 
-    private static final String MODEL_FILE = "file:///android_asset/mushrooms.pb";
+    private static final String MODEL_FILE = "file:///android_asset/mushrooms.tflite";
     private static final String LABEL_FILE = "file:///android_asset/output_labels.txt";
 
     private static final boolean SAVE_PREVIEW_BITMAP = false;
