@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.dmitrybrant.mushroomhunter"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 37
         versionCode = 3
         versionName = "1.0"
@@ -35,13 +35,13 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.google.ai.edge.litert:litert:2.1.5'
-    implementation 'com.github.bumptech.glide:glide:5.0.7'
+    implementation libs.litert
+    implementation libs.glide
 
-    implementation "com.google.android.material:material:1.14.0"
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation libs.material
+    implementation libs.androidx.constraintlayout
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.espresso.core
 
 }
